@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Кликер</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1a0033, #000);
+      color: #e0e0ff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px 15px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 30px #00ffff;
+      letter-spacing: 4px;
+    }
+
+    #money {
+      font-size: clamp(28px, 8vw, 48px);
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 30px #00ffff;
+      margin: 20px 0;
+    }
+
+    #clickBtn {
+      width: 60vw;
+      height: 60vw;
+      max-width: 240px;
+      max-height: 240px;
+      min-width: 140px;
+      min-height: 140px;
+      border-radius: 50%;
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+      background: radial-gradient(circle, #ff00ff, #8000ff);
+      border: 3px solid #fff;
+      box-shadow: 0 0 25px #ff00ff;
+      cursor: pointer;
+      transition: transform 0.1s;
+      animation: pulse 2s infinite;
+    }
+
+    #clickBtn:hover {
+      box-shadow: 0 0 50px #ff00ff, 0 0 80px #8000ff;
+    }
+
+    #clickBtn:active {
+      transform: scale(0.95);
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px #ff00ff; }
+      50%      { box-shadow: 0 0 50px #ff00ff, 0 0 80px #8000ff; }
+    }
+
+    #upgradeBtn {
+      display: block;
+      margin: 25px auto 15px;
+      padding: 14px 24px;
+      font-size: clamp(14px, 4vw, 18px);
+      font-weight: bold;
+      color: #000;
+      background: #00ffcc;
+      border: 2px solid #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00ffcc;
+      cursor: pointer;
+      max-width: 90%;
+    }
+
+    #upgradeBtn:disabled {
+      background: #444;
+      color: #888;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    #autoBtn {
+      display: block;
+      margin: 15px auto;
+      padding: 14px 24px;
+      font-size: clamp(14px, 4vw, 18px);
+      font-weight: bold;
+      color: #000;
+      background: #ff66cc;
+      border: 2px solid #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #ff66cc;
+      cursor: pointer;
+      max-width: 90%;
+    }
+
+    #autoBtn:disabled {
+      background: #444;
+      color: #888;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    #stats {
+      margin-top: 20px;
+      color: #ffcc00;
+      font-size: clamp(13px, 3.5vw, 17px);
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ КЛИКЕР ⚡</h1>
+  <div id="money">0.0$</div>
+  <button id="clickBtn">КЛИК</button>
+  <div id="stats"></div>
+  <button id="upgradeBtn">Прокачать клик</button>
+  <button id="autoBtn">Купить автокликер</button>
+
+  <script>
+    let money = 0;
+    let clickPower = 0.1;
+
+    let upgradeLevel = 0;
+    let upgradeCost = 1;
+
+    let autoLevel = 0;
+    let autoCost = 100000000000000;
+    let autoIncome = 0;
+
+    const moneyEl = document.getElementById('money');
+    const clickBtn = document.getElementById('clickBtn');
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    const autoBtn = document.getElementById('autoBtn');
+    const statsEl = document.getElementById('stats');
+
+    clickBtn.onclick = function() {
+      money = money + clickPower;
+      updateScreen();
+      clickBtn.blur();
+    };
+
+    upgradeBtn.onclick = function() {
+      if (money >= upgradeCost) {
+        money = money - upgradeCost;
+        clickPower = clickPower + 0.1;
+        upgradeLevel = upgradeLevel + 1;
+        upgradeCost = Math.round(upgradeCost * 1.5 * 10) / 10;
+        updateScreen();
+        upgradeBtn.blur();
+      }
+    };
+
+    autoBtn.onclick = function() {
+      if (money >= autoCost) {
+        money = money - autoCost;
+        autoIncome = autoIncome + 0.5;
+        autoLevel = autoLevel + 1;
+        autoCost = Math.round(autoCost * 1.6 * 10) / 10;
+        updateScreen();
+        autoBtn.blur();
+      }
+    };
+
+    function updateScreen() {
+      moneyEl.textContent = money.toFixed(1) + '$';
+      statsEl.textContent =
+        'За клик: ' + clickPower.toFixed(1) + '$ | ' +
+        'В секунду: ' + autoIncome.toFixed(1) + '$';
+
+      upgradeBtn.textContent = 'Прокачать клик ур.' + upgradeLevel + ' (цена: ' + upgradeCost + '$)';
+      upgradeBtn.disabled = money < upgradeCost;
+
+      autoBtn.textContent = 'Автокликер ур.' + autoLevel + ' (цена: ' + autoCost + '$)';
+      autoBtn.disabled = money < autoCost;
+    }
+
+    setInterval(function() {
+      if (autoIncome > 0) {
+        money = money + autoIncome;
+        updateScreen();
+      }
+    }, 1000);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+      }
+    });
+
+    updateScreen();
+  </script>
+</body>
+</html>
